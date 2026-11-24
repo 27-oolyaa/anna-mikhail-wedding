@@ -51,23 +51,34 @@ nav.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
   menuButton.setAttribute('aria-expanded', 'false');
 }));
 
-// RSVP: отправка в Google Таблицу через опубликованный Google Apps Script.
-// Вставьте URL веб-приложения вместо пустой строки после публикации Apps Script.
+// RSVP: отправка в Google Таблицу через Google Apps Script.
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzxx5ni7d8fd4J_bVjnhtsNEewe7MmBGv-QpCvg-NLm7G9ZQsCvknGJzk5LJLEEtcJF/exec';
 const form = document.getElementById('rsvpForm');
 const status = document.getElementById('formStatus');
-form.addEventListener('submit', event => {
+form.addEventListener('submit', async event => {
   event.preventDefault();
   if (!form.reportValidity()) return;
+
   const data = Object.fromEntries(new FormData(form).entries());
   data.submittedAt = new Date().toISOString();
+  const submitButton = form.querySelector('button[type="submit"]');
+  submitButton.disabled = true;
+  status.textContent = 'Отправляем ответ…';
+
   try {
-    const responses = JSON.parse(localStorage.getItem('wedding-rsvp-responses') || '[]');
-    responses.push(data);
-    localStorage.setItem('wedding-rsvp-responses', JSON.stringify(responses));
-    status.textContent = 'Спасибо! Ваш ответ сохранён на этом устройстве.';
+    // Google Apps Script принимает urlencoded POST. В no-cors браузер не
+    // раскрывает ответ сервера, поэтому успех сети не гарантирует запись в таблицу.
+    await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+      body: new URLSearchParams(data).toString()
+    });
+    status.textContent = 'Спасибо! Ответ отправлен. Если запись не появилась в таблице, сообщите молодожёнам.';
     form.reset();
   } catch (error) {
-    status.textContent = 'Не удалось сохранить ответ в браузере. Пожалуйста, свяжитесь с молодожёнами напрямую.';
+    status.textContent = 'Не удалось отправить ответ. Проверьте интернет и попробуйте ещё раз.';
+  } finally {
+    submitButton.disabled = false;
   }
 });
