@@ -52,7 +52,9 @@ nav.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
 }));
 
 // RSVP: отправка в Google Таблицу через Google Apps Script.
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzxx5ni7d8fd4J_bVjnhtsNEewe7MmBGv-QpCvg-NLm7G9ZQsCvknGJzk5LJLEEtcJF/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzU9ZaphOcQqw4a4qKRwvQfG_V4s1MSZ1FkDj2K28-P3fvv6lCmSVPdHxLPDMIwJRuN/exec
+
+';
 const form = document.getElementById('rsvpForm');
 const status = document.getElementById('formStatus');
 form.addEventListener('submit', async event => {
