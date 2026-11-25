@@ -1,14 +1,18 @@
-/**
- * Принимает RSVP с сайта и добавляет строку в Google Таблицу.
- * Разверните как веб-приложение: запуск от вашего имени, доступ — все.
- */
+const SPREADSHEET_ID = '1CfrLv8uQzaZxvIr_RKTBeHCGeP6lgw9jiWwc_xAjre0';
 const SHEET_NAME = 'Ответы гостей';
+
+function doGet() {
+  return ContentService
+    .createTextOutput('Сервер свадебного приглашения работает')
+    .setMimeType(ContentService.MimeType.TEXT);
+}
 
 function doPost(e) {
   const lock = LockService.getScriptLock();
-  lock.waitLock(10000);
   try {
-    const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+    lock.waitLock(10000);
+
+    const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
     let sheet = spreadsheet.getSheetByName(SHEET_NAME);
     if (!sheet) sheet = spreadsheet.insertSheet(SHEET_NAME);
 
@@ -25,18 +29,25 @@ function doPost(e) {
     }
 
     const p = (e && e.parameter) ? e.parameter : {};
+    const name = String(p.name || '').trim();
+    if (!name) throw new Error('Не указано имя гостя');
+
     sheet.appendRow([
       new Date(),
-      p.name || '',
-      p.attendance || '',
-      p.plusOne || '',
-      p.comments || ''
+      name,
+      String(p.attendance || ''),
+      String(p.plusOne || ''),
+      String(p.comments || '')
     ]);
 
     return ContentService
       .createTextOutput(JSON.stringify({ ok: true }))
       .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: false, error: String(err) }))
+      .setMimeType(ContentService.MimeType.JSON);
   } finally {
-    lock.releaseLock();
+    if (lock.hasLock()) lock.releaseLock();
   }
 }
