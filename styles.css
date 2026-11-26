@@ -5,3 +5,20 @@
 .map-embed iframe{display:block;width:100%;min-height:240px;border:0;filter:grayscale(35%) sepia(10%)}
 .map-links{display:flex;flex-wrap:wrap;gap:9px}
 .map-links a{display:inline-block}
+
+
+/* Кнопка построения маршрута */
+.route-button {
+  display: inline-block;
+  margin: 14px 0 8px;
+  padding: 10px 16px;
+  border: 1px solid rgba(255,255,255,.85);
+  color: #fff;
+  text-decoration: none;
+  font: inherit;
+  letter-spacing: .04em;
+  cursor: pointer;
+}
+.route-button:hover {
+  background: rgba(255,255,255,.12);
+}
